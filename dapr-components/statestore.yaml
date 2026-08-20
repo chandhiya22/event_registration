@@ -1,0 +1,18 @@
+# Register on the ACA environment with:
+# az containerapp env dapr-component set --name env-confer --resource-group rg-confer \
+#   --dapr-component-name statestore --yaml dapr-components/statestore.yaml
+componentType: state.azure.blobstorage
+version: v1
+metadata:
+  - name: accountName
+    value: "stconfer01"
+  - name: accountKey
+    secretRef: storage-account-key
+  - name: containerName
+    value: "dapr-state"
+secrets:
+  - name: storage-account-key
+    keyVaultUrl: "https://kv-confer.vault.azure.net"
+    keyVaultSecret: "StorageAccountKey"
+scopes:
+  - processing-service

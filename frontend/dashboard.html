@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confer — Organizer Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  p.meta { color: #666; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+  th { color: #666; font-weight: 600; }
+  .status-validated { color: #065f46; font-weight: 600; }
+  .status-rejected { color: #991b1b; font-weight: 600; }
+  input#apiKey { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+  button { padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>Confer — Live Registrations</h1>
+  <p class="meta">Auto-refreshes every 5s. <span id="count"></span></p>
+
+  <input type="password" id="apiKey" placeholder="Admin API key">
+  <button onclick="load()">Load</button>
+
+  <table id="regTable">
+    <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Received</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_BASE = "https://admin-dashboard-service.<YOUR-ACA-DOMAIN>.azurecontainerapps.io";
+    let timer;
+
+    async function load() {
+      const key = document.getElementById("apiKey").value;
+      const res = await fetch(`${API_BASE}/recent`, { headers: { "X-API-Key": key } });
+      if (!res.ok) { alert("Invalid API key"); return; }
+      const json = await res.json();
+      document.getElementById("count").textContent = `${json.count} total registrations`;
+      const tbody = document.querySelector("#regTable tbody");
+      tbody.innerHTML = json.registrations.map(r => `
+        <tr>
+          <td>${r.name || "-"}</td>
+          <td>${r.email || "-"}</td>
+          <td class="status-${r.status}">${r.status}</td>
+          <td>${new Date(r.received_at).toLocaleTimeString()}</td>
+        </tr>
+      `).join("");
+
+      clearTimeout(timer);
+      timer = setTimeout(load, 5000);
+    }
+  </script>
+</body>
+</html>

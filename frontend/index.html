@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Confer — Register</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 480px; margin: 60px auto; padding: 0 20px; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  p.tagline { color: #666; margin-top: 0; }
+  label { display: block; margin-top: 16px; font-weight: 600; font-size: 0.9rem; }
+  input { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+  button { margin-top: 24px; width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+  button:hover { background: #1d4ed8; }
+  #result { margin-top: 20px; padding: 12px; border-radius: 6px; display: none; }
+  #result.ok { background: #ecfdf5; color: #065f46; display: block; }
+  #result.err { background: #fef2f2; color: #991b1b; display: block; }
+</style>
+</head>
+<body>
+  <h1>Confer</h1>
+  <p class="tagline">Register for the event — confirmation in seconds, not days.</p>
+
+  <form id="regForm">
+    <label>Full name</label>
+    <input type="text" name="name" required>
+
+    <label>Email</label>
+    <input type="email" name="email" required>
+
+    <label>ID / payment proof (upload)</label>
+    <input type="file" name="document" required>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const API_BASE = "https://registration-api.<YOUR-ACA-DOMAIN>.azurecontainerapps.io";
+
+    document.getElementById("regForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      const resultEl = document.getElementById("result");
+      resultEl.className = ""; resultEl.style.display = "none";
+
+      try {
+        const res = await fetch(`${API_BASE}/register`, { method: "POST", body: data });
+        const json = await res.json();
+        resultEl.className = "ok";
+        resultEl.textContent = `${json.message} (Registration ID: ${json.registration_id})`;
+        form.reset();
+      } catch (err) {
+        resultEl.className = "err";
+        resultEl.textContent = "Something went wrong — please try again.";
+      }
+    });
+  </script>
+</body>
+</html>

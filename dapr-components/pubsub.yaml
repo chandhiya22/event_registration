@@ -1,0 +1,16 @@
+# Register on the ACA environment with:
+# az containerapp env dapr-component set --name env-confer --resource-group rg-confer \
+#   --dapr-component-name pubsub --yaml dapr-components/pubsub.yaml
+componentType: pubsub.azure.servicebus.topics
+version: v1
+metadata:
+  - name: connectionString
+    secretRef: servicebus-connection-string
+secrets:
+  - name: servicebus-connection-string
+    keyVaultUrl: "https://kv-confer.vault.azure.net"
+    keyVaultSecret: "ServiceBusConnectionString"
+scopes:
+  - processing-service
+  - notifier-service
+  - admin-dashboard-service
